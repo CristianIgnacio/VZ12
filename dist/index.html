@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" ng-app="app" style="background:transparent !important;">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa Precio de Combustibles</title>
+  <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
+</head>
+<body style="background:transparent !important;">
+  <script type="text/javascript" src="svg-pan-zoom.min.js" ></script>
+  <div class="wrapper" ng-view></div>
+  <script type="text/javascript">
+    // PanZoom Plugin
+    function zoom() {
+      setTimeout(function(){
+        var panZoomInstance = svgPanZoom('#svgmap', {
+          zoomEnabled: true,
+          controlIconsEnabled: true,
+          fit: true,
+          center: true,
+          minZoom: 0.1
+        });
+      },3000);
+    }
+    setTimeout(function(){
+      zoom();
+    },4000);
+  </script>
+<script type="text/javascript" src="bundle.app.cdfef6cbb43ab60668f5.js"></script></body>
+</html>

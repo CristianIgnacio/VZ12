@@ -1,0 +1,23 @@
+{
+  "name": "viz12cne",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Israel Wegierski <israel@patmos.io>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Junar/VizCNE",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-selectize2": "^3.0.1",
+    "angular-sanitize": "^1.5.7",
+    "angular-loading-bar": "^0.9.0",
+	"selectize": "~0.12.4"
+  }
+}

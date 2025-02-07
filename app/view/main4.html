@@ -1,0 +1,229 @@
+<header class="header">
+  <div class="logo visible-print-block">
+    <img src="{{$lang=='en'?'img/logoHeaderEn.png':'img/logoHeader.png'}}">
+  </div>
+  <!-- <h1 translate="TITLE"></h1> -->
+  <form class="form form-inline hidden-print" >
+    <!-- Mode -->
+    <div class="form-group filter-mode">
+      <label translate="MODE">Modo</label><br>
+      <div class="btn-group btn-group-lg" role="group" aria-label="">
+        <button ng-click="changeMode(1)" type="button" class="btn btn-default" ng-class="{'active': mode==1}"> <i class="glyphicon glyphicon-globe"></i> <span translate="MODEG">Gráfico</span></button>
+        <button ng-click="changeMode(2)" type="button" class="btn btn-default" ng-class="{'active': mode==2}"> <i class="glyphicon glyphicon-th"></i> <span translate="MODET">Texto</span></button>
+      </div>
+    </div>
+    <!-- Filter Political Division -->
+    <div class="form-group" ng-show="mode==1">
+      <label translate="DIVPOL">División Prolítica</label><br>
+      <selectize
+        {{$lang=='en'?'img/logoHeaderEn.png':'img/logoHeader.png'}}
+        config='divpol.config'
+        options='divpol.options'
+        ng-model="divpol.model">
+      </selectize>
+    </div>
+    <!-- Filter Region -->
+    <div class="form-group " ng-show="mode==2">
+      <label translate="REG">Región</label><br>
+      <selectize
+        ng-change='refreshProvinces()'
+        config='regions.config'
+        options='regions.options'
+        ng-model="regions.model">
+      </selectize>
+      <!-- <small class="inst" translate="labelinst"></small> -->
+    </div>
+    <!-- Filter Provincia -->
+    <div class="form-group " ng-show="mode==2">
+      <label translate="PROV">Provincia</label><br>
+      <selectize
+        ng-change='refreshCommunes()'
+        config='provinces.config'
+        options='provinces.options'
+        ng-model="provinces.model">
+      </selectize>
+      <!-- <small class="inst" translate="labelinst"></small> -->
+    </div>
+
+    <!-- Filter Comunas -->
+    <div class="form-group " ng-show="mode==2">
+      <label translate="COMMUNE">Comunas</label><br>
+      <selectize
+        config='communes.config'
+        options='communes.options'
+        ng-model="communes.model">
+      </selectize>
+      <!-- <small class="inst" translate="labelinst"></small> -->
+    </div>
+    <!-- Filter Combustible -->
+    <div class="form-group" >
+      <label translate="COMB">Tipo de Combustible</label><br>
+      <selectize
+        config='comb.config'
+        options='comb.options'
+        ng-model="comb.model">
+      </selectize>
+    </div>
+    
+    <!-- Filter Servicentros 
+    <div class="form-group" ng-show="mode==2" >
+      <label translate="SERV">Servicentros</label><br>
+      <selectize
+        config='serv.config'
+        options='serv.options'
+        ng-model="serv.model">
+      </selectize>
+    </div>-->
+  </form>
+  <!-- Header Table -->
+  <small class="hidden-print" ng-show="mode==2"><span translate="MOSTRANDO">Actualmente mostrando</span>: <strong>{{ srvFilter.length }}</strong> <span translate="SERVICENTROS">servicentros de</span> <strong>{{comb.array[comb.model] }}</strong><br></small>
+  
+  <small class="hidden-print" ng-show="mode==2"><span translate="LISTADO">Listado ordenado por </span><strong>{{ table.map[table.sortType] }}</strong> <span translate="MANERA">de manera </span><strong><span translate="{{ table.sortReverse?'ASC':'DESC' }}" ></span></strong> <br> </small>
+  
+  <small class="hidden-print" ng-show="mode==2">
+    <span ng-show="regions.model != '*' || provinces.model != '*' || communes.model != '*' ">
+      El promedio para la seleccion es de <strong>{{ averagetable }}</strong>
+    </span>
+  </small>
+
+  <!-- Header Map -->
+  <small class="hidden-print" ng-show="mode==1"><span translate="MOSTRANDO">Actualmente mostrando</span>: <strong>{{comb.array[comb.model] }}</strong>.<!--, <span translate="ENTODAS">en todas las </span><span ng-show="communes.model=='*'"><strong> {{ divpol.options }}</strong></span>--></small>
+
+  <!-- Print Header -->
+  <h3 class="visible-print-block">
+    <strong>{{ srvFilter.length }}</strong translate="SERVICENTROS"> servicentros de <strong> {{ comb.array[comb.model] }}</strong> en 
+    <span ng-show="communes.model=='*'"><strong> {{ 'Todas las comunas' }}</strong></span>
+    <span ng-show="regions.model!='*' && provinces.model=='*' && communes.model=='*'"> de la 
+      <strong>Region: {{ regions.model }}</strong> 
+    </span> 
+    <span ng-show="provinces.model!='*' && communes.model=='*'"> de la 
+      <strong><span translate="PROVINCIA">Provincia</span>: {{ provinces.model }}</strong> 
+    </span> 
+    <span ng-show="communes.model!='*'"><strong> {{ communes.model }}</strong> </span>
+  </h3>
+  <!-- ./Print Header -->
+</header>
+
+<div id="map" class="map" ng-show="mode==1">
+  <div class="toltip">
+    <div class="price">
+      <small ng-hide="averageselect!=0"><strong><span translate="NOREGISTRA">No se registra</span><br/><span translate="INFORMACION">información</span></strong></small>
+      <small ng-show="averageselect!=0" translate="PRECIOPROMEDIO">Precio promedio</small><br>
+      <span ng-show="averageselect!=0">${{averageselect}}</span>
+    </div>
+    <div class="data">
+      <div><i class="glyphicon glyphicon-map-marker"></i> </svg> {{ comb.array[comb.model] }} </div>
+      <div><i class="glyphicon glyphicon-map-marker"></i> {{itemselect}}</div>
+    </div>
+    <div class="link"><a href="#/{{lang}}/table/?type={{itemselectType}}&value={{itemselect}}&comb={{comb.model}}" translate="VERPRECIOS">Ver todo los precios</a></div>
+  </div>
+  <div class="wp-svg map-{{divpol.model}}" style="padding-bottom: 27% /* 100% * 1842/10780 */" ng-include src="divpol.maps[divpol.model]" onload="loadmap=divpol.maps[divpol.model]"></div>
+  <div class="scale">
+    <small translate="PRECIOPROMEDIO">Precio promedio</small><br />
+    <div class="min">{{ averageMin }}</div>
+    <div class="value-1">-$</div>
+    <div class="value-2"></div>
+    <div class="value-3"></div>
+    <div class="value-4"></div>
+    <div class="value-5"></div>
+    <div class="value-6"></div>
+    <div class="value-7"></div>
+    <div class="value-8"></div>
+    <div class="value-9"></div>
+    <div class="value-10">+$</div>
+    <div class="max">{{ averageMax }}</div>
+  </div>
+  <div class="footer">
+    <p><span translate="ULTIMAFECHA">Fecha último dato disponible</span>: {{ lastupdate | date:"dd/MM/yyyy" }}</p>
+    <p><span translate="FUENTE">Fuente</span>: <a href="http://www.bencinaenlinea.cl/" target="_blank">Bencina en línea</a>. <span translate="DATA">Los datos</span>: <a href="http://datos.energiaabierta.cl/dataviews/242658/bencina-en-linea/" target="_blank">Dataset 1</a>, <a href="http://datos.energiaabierta.cl/dataviews/242659/kerosene-en-linea/" target="_blank">Dataset 2</a>.</p>
+  </div>
+</div>
+<!-- .mapa -->
+<div id="table" ng-show="mode==2" >
+  <div class="export text-right">
+    <div class="btn-group btn-group-lg hidden-print" role="group" aria-label="">
+      <button type="button" class="btn btn-primary" onClick="window.print()"> <i class="glyphicon glyphicon-print"></i></button>
+      <button type="button" 
+              class="btn btn-primary " 
+              ng-csv="getSrv()" 
+              csv-header="csvheader" 
+              filename="Servicentros.csv"> <i class="glyphicon glyphicon-cloud-download"></i></button>
+    </div>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>
+          <p ng-click="table.sortType = 'name'; table.sortReverse = !table.sortReverse">
+            Servicentro
+            <span ng-show="table.sortType == 'name' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'name' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+        <th class="visible-print-table-cell" ng-show="communes.model=='*'"><span translate="COMUNAS">Comunas</span></th>
+        <th>
+          <p ng-click="table.sortType = 'direction'; table.sortReverse = !table.sortReverse">
+            <span translate="DIRECCION">Dirección</span>
+            <span ng-show="table.sortType == 'direction' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'direction' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+        <th>
+          <p ng-click="table.sortType = 'coordenada'; table.sortReverse = !table.sortReverse">
+            <span translate="COORDENADAS">Coordenadas</span>
+            <span ng-show="table.sortType == 'coordenada' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'coordenada' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+        <th>
+          <p ng-click="table.sortType = 'autoservicio'; table.sortReverse = !table.sortReverse">
+              <span translate="AUTOSERVICIO">Autoservicio</span>
+            <span ng-show="table.sortType == 'autoservicio' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'autoservicio' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+        <th>
+          <p ng-click="table.sortType = 'prices'; table.sortReverse = !table.sortReverse">
+            <span translate="PRECIO">Precio</span>
+            <span ng-show="table.sortType == 'prices' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'prices' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+        </th>
+        <th>
+          <p ng-click="table.sortType = 'update'; table.sortReverse = !table.sortReverse">
+            <span translate="ULTIMAACTUALIZACION"> Úlima Actualización</span>
+            <span ng-show="table.sortType == 'update' && !table.sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="table.sortType == 'update' && table.sortReverse" class="fa fa-caret-up"></span>
+          </p>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hidden-print" dir-paginate="item in srvFilter = (srv | communes:communes.model | regions:regions.model:this | provinces:provinces.model:this | comb:comb.model ) | ordercustom:table.sortType:table.sortReverse:this | itemsPerPage: 15 " >
+        <td class="serv">{{item.name}}</td>
+        <td class="dir">{{item.direction}}</td>
+        <td>{{item.coordenada}}</td>
+        <td>{{item.autoservicio? ('CONAUTOSERVICIO' | translate ):('SINAUTOSERVICIO' | translate) }}</td>
+
+        <td class="price">{{item.prices[comb.model]}}</td>
+        <td>{{ item.update | date }}</td>
+      </tr>
+      <tr ng-hide="srvFilter.length">
+        <td><strong translate="SINRESULTADOS">No Hay Resultados</strong></td>
+      </tr>
+ 
+      <tr class="visible-print-table-row" ng-repeat="item in srvFilter = (srv | communes:communes.model | regions:regions.model:this | provinces:provinces.model:this | comb:comb.model | serv:serv.model ) | ordercustom:table.sortType:table.sortReverse:this" >
+        <td class="serv">{{item.name}}</td>
+        <td ng-show="communes.model=='*'">{{item.commune}}</td>
+        <td class="dir">{{item.direction}}</td>
+        <td>{{item.coordenada}}</td>
+        <td>{{item.autoservicio? ('CONAUTOSERVICIO' | translate ):('SINAUTOSERVICIO' | translate) }}</td>
+        <td class="price">{{item.prices[comb.model]}}</td>
+        <td>{{ item.update | date }}</td>
+      </tr>
+     
+    </tbody>
+  </table>
+  <dir-pagination-controls boundary-links="true" class="hidden-print" max-size="7" on-page-change="pageChangeHandler(newPageNumber)" ></dir-pagination-controls>
+</div><!-- .table -->
