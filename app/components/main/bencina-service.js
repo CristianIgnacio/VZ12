@@ -150,29 +150,42 @@ var parseBenci = function(newData, value) {
     '97': 19, 'A97': 19 
   };
 
+  // if (!(value['codigo'] in newData)) {
+  //   console.log("ENTRE 1")
+  //   newData[value['codigo']] = {}
+  // }
+
+  // console.log("COMPROBANDO: " + value['codigo'] + " "+ value['combustible']);
+
   if (!(value['codigo'] in newData)) {
-    newData[value['codigo']] = {}
+    console.log("ENTRE 2")
+    newData[value['codigo']] = {
+      name: value['marca'],  // marca
+      direction: value['direccion'], // latitud y longitud
+      coordenada: Tools.ddToDms(value['latitud'],value['longitud']), 
+      commune: value['nombre_comuna'], 
+      autoservicio: value['tipo_atencion'],  // tipo_de_atencion: 2 valores
+      prices: {                 // where && tools.filterInt
+        14: 0,  // 93
+        15: 0,  // DIESEL
+        16: 0,  // 95
+        17: 0,  // GLP
+        18: 0,  // GNC
+        19: 0,  // 97
+        20: 0   // kerosene
+      },
+      update: new Date( value['fecha_actualizacion'].replace(" ", "T") ) // solo fecha
+    };
   }
 
-  console.log("COMPROBANDO: " + value);
+  // Obtener el tipo de combustible en clave numérica agrupada
+  let tipoCombustible = fuelTypeMap[String(value['combustible'])];
 
-  newData[value['codigo']] = {
-    name: value['marca'],  // marca
-    direction: value['direccion'], // latitud y longitud
-    coordenada: Tools.ddToDms(value['latitud'],value['longitud']), 
-    commune: value['nombre_comuna'], 
-    autoservicio: value['tipo_atencion'],  // tipo_de_atencion: 2 valores
-    prices: {                 // where && tools.filterInt
-      14: value['precio'],  // 93
-      15: value['precio'],  // 95
-      16: value['precio'],  // 97
-      17: value['precio'],  // GLP
-      18: value['precio'],  // DISEL
-      19: value['precio'],  // GNC
-      20: 0,
-    },
-    update: new Date( value['fecha_actualizacion'].replace(" ", "T") ) // solo fecha
-  };
+  // Si el tipo de combustible es válido, sumamos su precio a la clave correspondiente
+  if (tipoCombustible !== undefined) {
+    let precio = value['precio'];
+    newData[value['codigo']].prices[tipoCombustible] = precio;
+  }
 
 }
 
@@ -204,7 +217,6 @@ export default app => {
     vm.bencinaFactory = {};
     
     vm.bencinaFactory.getData = () => {
-      // return $http.get( API_URL + BENCINA_SLUG + '/data.ajson/?auth_key=' + API_KEY ).then((response) => {
       return doRequest( URL_BASE + BENCINA_EXT ).then((response) => {
         console.log("resultadosBENCINA")
         console.log(response)
