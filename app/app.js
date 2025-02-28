@@ -34,6 +34,9 @@ var app = angular.module('app', [
   .constant('API_KEY', 'ee48dd8a08c8c762e6faad36ca3bcb676132f18a')
   .constant('BENCINA_SLUG', 'BENCI-EN-LINEA-V2-80280')
   .constant('KEROSENE_SLUG', 'CALEF-EN-LINEA-API-V3')
+  .constant('URL_BASE', 'https://apim.ea.cne.cl:8244/combustible_en_linea/v1/')
+  .constant('BENCINA_EXT', 'bencina')
+  .constant('KEROSENE_EXT', 'kerosene')
   .config((paginationTemplateProvider)=>{paginationTemplateProvider.setPath(paginationTemplate);})
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) { cfpLoadingBarProvider.includeSpinner = false; }])
   .config(function($sceDelegateProvider) {
