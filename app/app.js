@@ -37,6 +37,8 @@ var app = angular.module('app', [
   .constant('URL_BASE', 'https://apim.ea.cne.cl:8244/combustible_en_linea/v1/')
   .constant('BENCINA_EXT', 'bencina')
   .constant('KEROSENE_EXT', 'kerosene')
+  .constant('OAUTH_KEY', 'Basic cUVsZG1GX2h5Nll0dWFZZ1FXYld5SmRuUUJZYTowWFFadXhZZDVHV0FadVZKazJBM2t3dzhCMXNh')
+  .constant('LIMIT_REQUEST', 1000)
   .config((paginationTemplateProvider)=>{paginationTemplateProvider.setPath(paginationTemplate);})
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) { cfpLoadingBarProvider.includeSpinner = false; }])
   .config(function($sceDelegateProvider) {
