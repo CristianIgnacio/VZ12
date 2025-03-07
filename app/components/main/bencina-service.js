@@ -43,11 +43,12 @@ var TOKEN = "eyJ4NXQiOiJPREJtTVRVMFpqSmpPREprTkdZMVpUaG1ZamsyWVRZek56UmpZekl6TVR
 //   console.log("Error:", error);
 // });
 
-function getToken() {
+// funcion para obtener un token
+function getToken(OAUTH_KEY) {
   return fetch(CORS, {
       method: "POST",
       headers: {
-          "Authorization": "Basic cUVsZG1GX2h5Nll0dWFZZ1FXYld5SmRuUUJZYTowWFFadXhZZDVHV0FadVZKazJBM2t3dzhCMXNh",
+          "Authorization": OAUTH_KEY,
           "Content-Type": "application/x-www-form-urlencoded"
       },
       body: new URLSearchParams({
@@ -67,11 +68,12 @@ function getToken() {
   .catch(error => console.error("Error obteniendo el token:", error));
 }
 
-function doRequest(URL) {
+// funcion que hace llamados a la bd segun un url limit
+function doRequest(URL, LIMIT, OAUTH_KEY) {
   let totalRecords = 0;
   let allResults = [];
 
-  return getToken().then(token => {
+  return getToken(OAUTH_KEY).then(token => {
       // Read total records
       return fetch(`${URL}?page=1&limit=1`, {
           headers: {
@@ -104,7 +106,7 @@ function doRequest(URL) {
               promises.push(promise);
           }
 
-          console.log("AVANZANDO ....")
+          // console.log("AVANZANDO ....")
           return Promise.all(promises);
 
         })
@@ -112,33 +114,6 @@ function doRequest(URL) {
   });
 }
 
-// console.log("limit: " + LIMIT)
-// const result = getToken();
-// const result = doRequest(URL);
-// console.log(result);
-// console.log(result);
-
-// getToken()
-
-
-// console.log(0 + " : " + value['codigo'])
-// console.log(1 + " : " + value['codigo_comuna'])
-// console.log(2 + " : " + value['codigo_region'])
-// console.log(3 + " : " + value['combustible'])
-// console.log(4 + " : " + value['direccion'])
-// console.log(5 + " : " + value['fecha_actualizacion'])
-// console.log(6 + " : " + value['hora_actualizacion'])
-// console.log(7 + " : " + value['latitud'])
-// console.log(8 + " : " + value['logo'])
-// console.log(9 + " : " + value['longitud'])
-// console.log(10 + " : " + value['marca'])
-// console.log(11 + " : " + value['nombre_comuna'])
-// console.log(12 + " : " + value['nombre_region'])
-// console.log(13 + " : " + value['precio'])
-// console.log(14 + " : " + value['razon_social'])
-// console.log(15 + " : " + value['tipo_atencion'])
-// console.log(16 + " : " + value['total'])
-// console.log(17 + " : " + value['unidad_cobro'])
 
 var parseBenci = function(newData, value) {
   const fuelTypeMap = {
@@ -158,7 +133,6 @@ var parseBenci = function(newData, value) {
   // console.log("COMPROBANDO: " + value['codigo'] + " "+ value['combustible']);
 
   if (!(value['codigo'] in newData)) {
-    console.log("ENTRE 2")
     newData[value['codigo']] = {
       name: value['marca'],  // marca
       direction: value['direccion'], // latitud y longitud
@@ -208,18 +182,16 @@ var parseKero= function(newData, value) {
 }
 
 export default app => {
-  // app.factory('BencinaService', function (API_KEY, API_URL, BENCINA_SLUG, KEROSENE_SLUG, $http) {
-  app.factory('BencinaService', function (URL_BASE, BENCINA_EXT, KEROSENE_EXT) {
+  app.factory('BencinaService', function (URL_BASE, BENCINA_EXT, KEROSENE_EXT, LIMIT_REQUEST, OAUTH_KEY) {
 
-    
     const vm = this;
 
     vm.bencinaFactory = {};
     
     vm.bencinaFactory.getData = () => {
-      return doRequest( URL_BASE + BENCINA_EXT ).then((response) => {
-        console.log("resultadosBENCINA")
-        console.log(response)
+      return doRequest( URL_BASE + BENCINA_EXT, LIMIT_REQUEST, OAUTH_KEY).then((response) => {
+        // console.log("resultadosBENCINA")
+        // console.log(response)
         // let data    = response.data.result;
         let data    = response;
         let newData = {};
@@ -232,9 +204,9 @@ export default app => {
           }
         });
 
-        return doRequest(URL_BASE + KEROSENE_EXT).then((response) => {
-          console.log("resultadosKERO")
-          console.log(response)
+        return doRequest(URL_BASE + KEROSENE_EXT, LIMIT_REQUEST, OAUTH_KEY).then((response) => {
+          // console.log("resultadosKERO")
+          // console.log(response)
           // let data    = response.data.result;
           let data    = response;
           // data.shift(); 
