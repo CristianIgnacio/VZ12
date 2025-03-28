@@ -37,6 +37,8 @@ export default function translate($translateProvider) {
     SINAUTOSERVICIO:'Sin autoservicio',
     SERVICENTRO:'Servicentro',
     DATA:'Los datos',
+    TIPOCOMB:'Tipo de Atencion',
+    ASISTIDO: 'Asistido'
   });
   $translateProvider.translations('en', {
     TITLE: '',
@@ -74,6 +76,8 @@ export default function translate($translateProvider) {
     CONAUTOSERVICIO:'With selfservice',
     SINAUTOSERVICIO:'Without selfservice',
     DATA:'Data',
+    TIPOCOMB:'Type of care',
+    ASISTIDO: 'Assisted'
   });
   $translateProvider.preferredLanguage('es');
 }
