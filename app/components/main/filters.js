@@ -14,9 +14,15 @@ export default app => {
     return function(input, serv) {
       var out = [];
       angular.forEach(input, function(item) {
-        if ( serv == 1  ){
-          if(item.autoservicio == 1)
+        if ( serv == 1 ){
+          if(item.autoservicio == true){
             out.push(item);
+          }
+        }
+        else if(serv == 2){
+          if(item.autoservicio == false){
+            out.push(item);
+          }
         }else{
           out.push(item);
         }
