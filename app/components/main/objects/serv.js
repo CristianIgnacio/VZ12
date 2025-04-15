@@ -1,6 +1,6 @@
 var serv = {
   options: [
-    {id: '0', title: 'Todos'},
+    {id: '0', title: 'Todas'},
     {id: '1', title: 'Autoservicio'},
     {id: '2', title: 'Asistido'}
   ],

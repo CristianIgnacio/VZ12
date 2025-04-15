@@ -60,14 +60,14 @@ export default app => {
     }
 
     if($scope.lang =='es'){
-      $scope.csvheader = ['Servicentro', 'Region', 'Provincia', 'Comuna', 'Dirección', 'Coordenadas', 'Autoservicio', 'Gasolina 93 $/L', 'Petróleo Diesel $/L', 'Gasolina 95 $/L', 'GLP Vehicular $/m3', 'GNC $/m3', 'Gasolina 97 $/L', 'Kerosene $/L' ,'Úlima Actualización'];  
+      $scope.csvheader = ['Servicentro', 'Region', 'Provincia', 'Comuna', 'Dirección', 'Coordenadas', 'Tipo de Atencion', 'Gasolina 93 $/L', 'Petróleo Diesel $/L', 'Gasolina 95 $/L', 'GLP Vehicular $/m3', 'GNC $/m3', 'Gasolina 97 $/L', 'Kerosene $/L' ,'Úlima Actualización'];  
     }else{
-      $scope.csvheader = ['Center service', 'Region', 'Province', 'City', 'Adress', 'Coordinates', 'Selfservice', 'Gasoline 93 $/L', 'Diesel Petroleum $/L', 'Gasoline 95 $/L', 'Vehicle LPG $/m3', 'GNC $/m3', 'Gasoline 97 $/L', 'Kerosene $/L' ,'Last update'];
+      $scope.csvheader = ['Center service', 'Region', 'Province', 'City', 'Adress', 'Coordinates', 'Type of care', 'Gasoline 93 $/L', 'Diesel Petroleum $/L', 'Gasoline 95 $/L', 'Vehicle LPG $/m3', 'GNC $/m3', 'Gasoline 97 $/L', 'Kerosene $/L' ,'Last update'];
     }
 
     if($scope.lang=="es"){
-      $scope.con = 'Con autoservicio';
-      $scope.sin = 'Sin autoservicio';
+      $scope.con = 'Autoservicio';
+      $scope.sin = 'Asistido';
     }else{
       $scope.con = 'With selfservice';
       $scope.sin = 'Without selfservice';
@@ -217,151 +217,243 @@ export default app => {
           $scope.colorMap();
         }
       }
+      // Actualizar variables
+      setTimeout(function(){
+        $scope.$apply();          
+      },300);
     });
 
     // Maps Average Region
     $scope.averageRegion = function (region) {
       var srv = $filter('regions')($scope.srv, region, $scope);
-      var calc = {
+      var calc = {};
+      
+      // Calcular "todas"
+      calc["todas"] = {
         sum: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
         length: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
         average: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
       };
-      angular.forEach( srv, function(value, key){
-        for ( var comb in calc.sum ) {
-          if (value.prices[comb] != '') {
-            calc.sum[comb] += parseFloat(value.prices[comb]);
-            calc.length[comb]++;
+      
+      angular.forEach(srv, function(value) {
+        var tipoAtencion = value.autoservicio? "autoservicio": "asistido";
+        if (!calc[tipoAtencion]) {
+          calc[tipoAtencion] = {
+            sum: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+            length: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+            average: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+          };
+        }
+        for (var comb in calc[tipoAtencion].sum) {
+          if (value.prices[comb] !== '' && value.prices[comb] != 0) {
+            calc[tipoAtencion].sum[comb] += parseFloat(value.prices[comb]);
+            calc[tipoAtencion].length[comb]++;
+
+            calc["todas"].sum[comb] += parseFloat(value.prices[comb]);
+            calc["todas"].length[comb] ++;
           }
         }
       });
-      for ( var comb in calc.average ) {
-        calc.average[comb] = Math.round(calc.sum[comb]/calc.length[comb]) || 0;
+
+      var respuesta = {}
+      for (var s in calc) {
+        respuesta[s] = {}
+        for (var comb in calc[s].average) {
+          calc[s].average[comb] = Math.round(calc[s].sum[comb] / calc[s].length[comb]) || 0;
+          respuesta[s][comb] = calc[s].average[comb]
+        }
       }
-      return calc.average;
+
+      return respuesta;
     };
     // Maps Average Province
     $scope.averageProvince = function (province) {
       var srv = $filter('provinces')($scope.srv, province, $scope);
-      var calc = {
+      var calc = {};
+
+      calc["todas"] = {
         sum: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
         length: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
         average: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
       };
-      angular.forEach( srv, function(value, key){
-        for ( var comb in calc.sum ) {
-          if (value.prices[comb] != '') {
-            calc.sum[comb] += parseFloat(value.prices[comb]);
-            calc.length[comb]++;
+    
+      angular.forEach(srv, function(value) {
+        var tipoAtencion = value.autoservicio? "autoservicio": "asistido";
+        if (!calc[tipoAtencion]) {
+          calc[tipoAtencion] = {
+            sum: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+            length: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+            average: { 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0 },
+          };
+        }
+        for (var comb in calc[tipoAtencion].sum) {
+          if (value.prices[comb] !== '' && value.prices[comb] != 0) {
+            calc[tipoAtencion].sum[comb] += parseFloat(value.prices[comb]);
+            calc[tipoAtencion].length[comb]++;
+
+            calc["todas"].sum[comb] += parseFloat(value.prices[comb]);
+            calc["todas"].length[comb] ++;
+          
           }
         }
       });
-      for ( var comb in calc.average ) {
-        calc.average[comb] = Math.round(calc.sum[comb]/calc.length[comb]) || 0;
+      
+      var respuesta = {}
+      for (var s in calc) {
+        respuesta[s] = {};
+        for (var comb in calc[s].average) {
+          calc[s].average[comb] = Math.round(calc[s].sum[comb] / calc[s].length[comb]) || 0;
+          respuesta[s][comb] = calc[s].average[comb]
+        }
       }
-      return calc.average;
+
+      return respuesta;
     };
     // Maps Average Communes
     $scope.averageCalculate = function () {
       // Compile Prices
-      angular.forEach( $scope.srv, function(value, key){
-        var $commune = value.commune;
-        if ( $scope.averages.averages.communes[$commune] == undefined  ) {
-          $scope.averages.averages.communes[$commune] = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
+      angular.forEach($scope.srv, function(value) {
+        var commune = value.commune;
+        var serv = value.autoservicio? "autoservicio": "asistido";
+
+        if (!$scope.averages.averages.communes[commune]) {
+          $scope.averages.averages.communes[commune] = {};
         }
-        for ( var comb in $scope.averages.averages.communes[$commune]) {
-          if (!Array.isArray($scope.averages.averages.communes[$commune][comb])) {
-            $scope.averages.averages.communes[$commune][comb] = [$scope.averages.averages.communes[$commune][comb]];
+      
+        ["autoservicio", "asistido", "todas"].forEach(function(serviceType) {
+          if (!$scope.averages.averages.communes[commune][serviceType]) {
+            $scope.averages.averages.communes[commune][serviceType] = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
           }
-          $scope.averages.averages.communes[$commune][comb].push(value.prices[comb]);
+        });
+
+        for (var comb in $scope.averages.averages.communes[commune][serv]) {
+          if (!Array.isArray($scope.averages.averages.communes[commune][serv][comb])) {
+            $scope.averages.averages.communes[commune][serv][comb] = [$scope.averages.averages.communes[commune][serv][comb]];
+          }
+          $scope.averages.averages.communes[commune][serv][comb].push(value.prices[comb]);
+
+          if (!Array.isArray($scope.averages.averages.communes[commune]['todas'][comb])) {
+            $scope.averages.averages.communes[commune]['todas'][comb] = [$scope.averages.averages.communes[commune]['todas'][comb]];
+          }
+          // Agregar el mismo precio en "todas"
+          $scope.averages.averages.communes[commune]['todas'][comb].push(value.prices[comb]);
         }
+
       });
       // Calculate Commune Averages 
-      for ( var commune in $scope.averages.averages.communes ){
-        for ( var comb in $scope.averages.averages.communes[commune]){
-          var prices = $scope.averages.averages.communes[commune][comb].filter(Number);
-          var n = prices.length;
-          var sum = 0;
-          while(n--) {
-            sum += parseFloat(prices[n]);
+      for (var commune in $scope.averages.averages.communes) {
+        for (var serv in $scope.averages.averages.communes[commune]) {
+          for (var comb in $scope.averages.averages.communes[commune][serv]) {
+            var pricesArray = $scope.averages.averages.communes[commune][serv][comb]
+            if(Array.isArray(pricesArray)){
+              var prices = Array.isArray(pricesArray)? pricesArray.filter(Number) : pricesArray;
+              var sum = prices.reduce((a, b) => a + parseFloat(b), 0);
+              var average = Math.round(sum / prices.length) || 0;
+              $scope.averages.averages.communes[commune][serv][comb] = average;
+            }
           }
-          var averages = Math.round(sum/prices.length) || 0;
-          $scope.averages.averages.communes[commune][comb] = averages;
         }
-      };
+      }
       // Calculate Regions Averages
-      for ( var region in $scope.regions.options ) {
+      for (var region in $scope.regions.options) {
         var average = $scope.averageRegion($scope.regions.options[region].id);
         $scope.averages.averages.regions[$scope.regions.options[region].title] = average;
       }
       // Calculate Provinces Averages
-      for ( var province in $scope.provinces.options ) {
+      for (var province in $scope.provinces.options) {
         var average = $scope.averageProvince($scope.provinces.options[province].id);
         $scope.averages.averages.provinces[$scope.provinces.options[province].title] = average;
-      }
-
+      }     
     };
     
     // Calculate Region/Province/Commune Colors
-    $scope.colorCalculate = function () {
+    $scope.colorCalculate = function () {      
+      for (var division in $scope.averages.averages) {
+        var scaleValues = {}, variance = {}, max = {}, min = {};
+        
+        // Inicializar 
+        for (var serv in $scope.serv.options) { 
+          var servType = $scope.serv.options[serv].title.toLowerCase()
 
-      // Calculate Color for Divisions 
-      for ( var division in $scope.averages.averages) {
-
-        var scaleValues = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
-        var variance = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
-        var max = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
-        var min = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
+          scaleValues[servType] = {};
+          variance[servType] = {};
+          max[servType] = {};
+          min[servType] = {};
+          
+          for (var comb = 14; comb <= 20; comb++) {
+            scaleValues[servType][comb] = [];
+            variance[servType][comb] = 0;
+            max[servType][comb] = 0;
+            min[servType][comb] = 0;
+          }
+        }
+    
         // Recolect Averages 
-        for ( var item in $scope.averages.averages[division]) {
-          for ( var comb in scaleValues ) {
-            if ($scope.averages.averages[division][item][comb] != 0) {
-              scaleValues[comb].push($scope.averages.averages[division][item][comb]);
+        for (var item in $scope.averages.averages[division]) {
+          for (var servType in $scope.averages.averages[division][item]) { 
+            for (var comb in scaleValues[servType]) {
+              if ($scope.averages.averages[division][item][servType][comb] != 0) {
+                scaleValues[servType][comb].push($scope.averages.averages[division][item][servType][comb]);
+              }
             }
           }
         }
         // Order Array
-        for ( var comb in scaleValues ) {
-          scaleValues[comb].sort(function(a, b) {return a - b;});
+        for (var servType in scaleValues) {
+          for (var comb in scaleValues[servType]) {
+            scaleValues[servType][comb].sort(function(a, b) { return a - b; });
+          }
         }
         // Calculate Variance 
-        for ( var comb in variance ) {
-          max[comb] = scaleValues[comb][scaleValues[comb].length-1];
-          min[comb] = scaleValues[comb][0];
-          variance[comb] = ( max[comb] - min[comb] ) / 10;
+        for (var servType in scaleValues) {
+          for (var comb in scaleValues[servType]) {
+            if (scaleValues[servType][comb].length > 0) {
+              min[servType][comb] = scaleValues[servType][comb][0];
+              max[servType][comb] = scaleValues[servType][comb][scaleValues[servType][comb].length - 1];
+              variance[servType][comb] = (max[servType][comb] - min[servType][comb]) / 10;
+            }
+          }
         }
         // Save Min and Max
         $scope.averages.min[division] = min;
         $scope.averages.max[division] = max;
+
         // Calculate color
-        for ( var item in $scope.averages.averages[division] ) {
-          if ( $scope.averages.colors[division][item] == undefined  ) {
-            $scope.averages.colors[division][item] = { 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [] };
+        for (var item in $scope.averages.averages[division]) {
+          if (!$scope.averages.colors[division][item]) {
+            $scope.averages.colors[division][item] = {};
           }
-          for ( var comb in variance ) {
-              var value = $scope.averages.averages[division][item][comb];
-              var start = min[comb];
-              var end = min[comb] + variance[comb];
-              var color;
+          
+          for (var servType in $scope.averages.averages[division][item]) {
+            if (!$scope.averages.colors[division][item][servType]) {
+              $scope.averages.colors[division][item][servType] = {};
+            }
+            
+            for (var comb in variance[servType]) {
+              var value = $scope.averages.averages[division][item][servType][comb];
+              var start = min[servType][comb];
+              var end = min[servType][comb] + variance[servType][comb];
+              var color = '#FFF';
+              
               if (value != 0) {
                 for (var i = 0; i < 10; i++) {
-                  if (value.between(start, end, true)) {
-                    var color = i;
+                  if (value >= start && value <= end) {
+                    color = i;
+                    break;
                   }
                   start = end;
-                  end = Math.round( (start + variance[comb]) * 10 ) / 10;;
+                  end = Math.round((start + variance[servType][comb]) * 10) / 10;
                 }
-                $scope.averages.colors[division][item][comb] = color;
-              }else{
-                $scope.averages.colors[division][item][comb] = '#FFF';
               }
+              
+              $scope.averages.colors[division][item][servType][comb] = color;
+            }
           }
         }
-
-      } //.for divisions
+      } 
     };
 
-    // Maps Colorate
+  // Maps Colorate
     $scope.colorGroup = function(type, id, item) {
       // Colorate Map
       var colors = [
@@ -376,44 +468,56 @@ export default app => {
         "#FA3A43",
         "#D7363E"
       ];
-      
+
       var select = $scope.averages.maps[type][id];
       var color = '#FFF';
-      if ($scope.averages.colors[type][select] != undefined) {
-        if ($scope.averages.colors[type][select][$scope.comb.model] != '#FFF') {
-          color = colors[$scope.averages.colors[type][select][$scope.comb.model]];
-        }
-        if (type=='communes') {
-          $(item).css('fill', color);
-        } else {
-          $(item).find('path').css('fill', color);
-        }
-      }else{
-        if (type=='communes') {
-          $(item).css('fill', color);
-        } else {
-          $(item).find('path').css('fill', color);
+      
+      if ($scope.averages.colors[type][select] && $scope.averages.colors[type][select] != undefined) {
+        var servType = $scope.serv.options[$scope.serv.model].title.toLowerCase()
+        var comb = $scope.comb.model; // Seleccionar el tipo de combustible actual
+
+        if ($scope.averages.colors[type][select][servType] && $scope.averages.colors[type][select][servType][comb] !== '#FFF') {
+          color = colors[$scope.averages.colors[type][select][servType][comb]];
         }
       }
+  
+      if (type === 'communes') {
+        $(item).css('fill', color);
+      } else {
+        $(item).find('path').css('fill', color);
+      }
     };
+
     $scope.averageMin = 0;
     $scope.averageMax = 0;
-    $scope.averageMinMax = function(){
+    $scope.averageMinMax = function() {
       var divpol;
-      switch($scope.divpol.model) {
+      switch ($scope.divpol.model) {
         case 'regiones':
           divpol = 'regions';
-        break;
+          break;
         case 'provincias':
           divpol = 'provinces';
-        break;
+          break;
         case 'comunas':
           divpol = 'communes';
-        break;
+          break;
       }
-      $scope.averageMin = $scope.averages.min[divpol][$scope.comb.model];
-      $scope.averageMax = $scope.averages.max[divpol][$scope.comb.model];
-    };
+      var servType = $scope.serv.options[$scope.serv.model].title.toLowerCase()
+      var comb = $scope.comb.model
+
+      // $scope.averageMin = $scope.averages.min[divpol][servType][$scope.comb.model];
+      // $scope.averageMax = $scope.averages.max[divpol][servType][$scope.comb.model]; 
+      $scope.averageMin = ($scope.averages.min[divpol] && $scope.averages.min[divpol][servType] && $scope.averages.min[divpol][servType][comb] !== undefined)
+                          ? $scope.averages.min[divpol][servType][comb]
+                          : 0;
+
+      $scope.averageMax = ($scope.averages.max[divpol] && $scope.averages.max[divpol][servType] && $scope.averages.max[divpol][servType][comb] !== undefined)
+                          ? $scope.averages.max[divpol][servType][comb]
+                          : 0;
+
+  };
+
     $scope.colorMap = function() {
       // Hover Map
       $scope.averageMinMax();
@@ -422,7 +526,8 @@ export default app => {
       for ( var commune in $scope.communes.all ){
         var name = $scope.communes.all[commune].title;
         name = Tools.removeDiacritics(name);
-        var key = name.replace(/\s+/g, '_');
+        // Replace spaces by underscore and remove ' (ex. O’Higgins --> OHiggins)
+        var key = name.replace(/\s+/g, '_').replace(/’/g, '');
         $scope.averages.maps.communes[key] = $scope.communes.all[commune].title;
       }
       // Each and Colorate for type
@@ -467,10 +572,18 @@ export default app => {
         e.stopPropagation();
         var group = $(this).closest('g[data-region]');
         var regionId = $(group).data('region');
+        var comb = $scope.comb.model;
+        var servType = $scope.serv.options[$scope.serv.model].title.toLowerCase()
         $scope.$apply(function(){
           $scope.itemselect = $scope.averages.maps.regions[regionId];
           $scope.itemselectType = 'region';
-          $scope.averageselect = $scope.averages.averages.regions[$scope.itemselect][$scope.comb.model];
+          if ($scope.averages.averages.regions[$scope.itemselect] &&
+            $scope.averages.averages.regions[$scope.itemselect][servType] &&
+            $scope.averages.averages.regions[$scope.itemselect][servType][comb] !== undefined) {
+            $scope.averageselect = $scope.averages.averages.regions[$scope.itemselect][servType][comb];
+          } else {
+            $scope.averageselect = 0;
+          }
         });
         var left = e.pageX>810?810:e.pageX;
         $('.toltip').addClass('active').css({
@@ -496,10 +609,18 @@ export default app => {
         e.stopPropagation();
         var group = $(this).closest('g[data-province]');
         var provinceId = $(group).data('province');
+        var comb = $scope.comb.model;
+        var servType = $scope.serv.options[$scope.serv.model].title.toLowerCase()
         $scope.$apply(function(){
           $scope.itemselect = $scope.averages.maps.provinces[provinceId];
           $scope.itemselectType = 'province';
-          $scope.averageselect = $scope.averages.averages.provinces[$scope.itemselect][$scope.comb.model];
+          if ($scope.averages.averages.provinces[$scope.itemselect] &&
+            $scope.averages.averages.provinces[$scope.itemselect][servType] &&
+            $scope.averages.averages.provinces[$scope.itemselect][servType][comb] !== undefined) {
+            $scope.averageselect = $scope.averages.averages.provinces[$scope.itemselect][servType][comb];
+          } else {
+            $scope.averageselect = 0;
+          }
         });
         var left = e.pageX>810?810:e.pageX;
         $('.toltip').addClass('active').css({
@@ -523,14 +644,18 @@ export default app => {
       $('#svgmap path[data-commune]').click(function(e){
         e.stopPropagation();
         var communeId = $(this).data('commune');
+        var comb = $scope.comb.model;
+        var servType = $scope.serv.options[$scope.serv.model].title.toLowerCase()
         $scope.$apply(function(){
-          if ($scope.averages.averages.communes[$scope.averages.maps.communes[communeId]] != undefined) {
-            $scope.itemselect = $scope.averages.maps.communes[communeId];
-            $scope.itemselectType = 'commune';
-            $scope.averageselect = $scope.averages.averages.communes[$scope.itemselect][$scope.comb.model];
+          $scope.itemselect = $scope.averages.maps.communes[communeId];
+          $scope.itemselectType = 'commune';
+          if ($scope.averages.averages.communes[$scope.itemselect] &&
+            $scope.averages.averages.communes[$scope.itemselect][servType] &&
+            $scope.averages.averages.communes[$scope.itemselect][servType][comb] !== undefined){
+            $scope.averageselect = $scope.averages.averages.communes[$scope.itemselect][servType][comb];
           }else{
-            $scope.itemselect = $scope.averages.maps.communes[communeId];
-             $scope.itemselectType = 'commune';
+            // $scope.itemselect = $scope.averages.maps.communes[communeId];
+            // $scope.itemselectType = 'commune';
             $scope.averageselect = 0;
           }
         });
@@ -545,7 +670,7 @@ export default app => {
           $('.toltip').removeClass('maxleft');
         }
       });
-      
+
     };
     // Table Select Averages
     $scope.averagetable = 0;
@@ -585,6 +710,19 @@ export default app => {
     };
     // Change Mode
     $scope.changeMode = function (mode) {
+      // Set default values for dropdowns
+      $scope.regions.model = '*';         // Default to all regions
+      $scope.provinces.model = '*';       // Default to all provinces
+      $scope.communes.model = '*';        // Default to all communes
+      $scope.comb.model = '14';          // Default comb type.  Use the key '14', '15' etc.
+      $scope.serv.model = '0';          // Default serv
+
+      $scope.divpol.model = 'regiones';  // Default to 'regiones'
+
+      // Initialize the options
+      // $scope.refreshProvinces;
+      // $scope.refreshCommunes;
+      
       $route.updateParams({mode: mode==1?'map':'table'});
     };
     $scope.$watch('comb.model', function(newValue, oldValue) {
@@ -593,6 +731,11 @@ export default app => {
       }
     });
     $scope.$watch('divpol.model', function(newValue, oldValue) {
+      if ($scope.loadmap != "") {
+        $scope.colorMap();
+      }
+    });
+    $scope.$watch('serv.model', function(newValue, oldValue) {
       if ($scope.loadmap != "") {
         $scope.colorMap();
       }
