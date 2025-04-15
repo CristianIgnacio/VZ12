@@ -18,6 +18,7 @@ import translate from './app-i18n';
 
 let paginationTemplate = require('ngtemplate!./template/pagination.html');
 
+var CORS = "https://cors-anywhere.herokuapp.com/"
 
 var app = angular.module('app', [ 
     'ngRoute',
@@ -30,10 +31,7 @@ var app = angular.module('app', [
   ])
   .config(routing)
   .config(translate)
-  .constant('API_URL', 'http://cne.cloudapi.junar.com/api/v2/datastreams/')
-  .constant('API_KEY', 'ee48dd8a08c8c762e6faad36ca3bcb676132f18a')
-  .constant('BENCINA_SLUG', 'BENCI-EN-LINEA-V2-80280')
-  .constant('KEROSENE_SLUG', 'CALEF-EN-LINEA-API-V3')
+  .constant('URL_TOKEN', CORS + 'https://apim.ea.cne.cl:9444/oauth2/token')
   .constant('URL_BASE', 'https://apim.ea.cne.cl:8244/combustible_en_linea/v1/')
   .constant('BENCINA_EXT', 'bencina')
   .constant('KEROSENE_EXT', 'kerosene')
