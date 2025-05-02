@@ -60,7 +60,7 @@ export default app => {
     }
 
     if($scope.lang =='es'){
-      $scope.csvheader = ['Servicentro', 'Region', 'Provincia', 'Comuna', 'Dirección', 'Coordenadas', 'Tipo de Atencion', 'Gasolina 93 $/L', 'Petróleo Diesel $/L', 'Gasolina 95 $/L', 'GLP Vehicular $/m3', 'GNC $/m3', 'Gasolina 97 $/L', 'Kerosene $/L' ,'Úlima Actualización'];  
+      $scope.csvheader = ['Servicentro', 'Region', 'Provincia', 'Comuna', 'Dirección', 'Coordenadas', 'Tipo de Atención', 'Gasolina 93 $/L', 'Petróleo Diesel $/L', 'Gasolina 95 $/L', 'GLP Vehicular $/m3', 'GNC $/m3', 'Gasolina 97 $/L', 'Kerosene $/L' ,'Úlima Actualización'];  
     }else{
       $scope.csvheader = ['Center service', 'Region', 'Province', 'City', 'Adress', 'Coordinates', 'Type of care', 'Gasoline 93 $/L', 'Diesel Petroleum $/L', 'Gasoline 95 $/L', 'Vehicle LPG $/m3', 'GNC $/m3', 'Gasoline 97 $/L', 'Kerosene $/L' ,'Last update'];
     }

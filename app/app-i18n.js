@@ -37,7 +37,7 @@ export default function translate($translateProvider) {
     SINAUTOSERVICIO:'Sin autoservicio',
     SERVICENTRO:'Servicentro',
     DATA:'Los datos',
-    TIPOCOMB:'Tipo de Atencion',
+    TIPOCOMB:'Tipo de Atención',
     ASISTIDO: 'Asistido'
   });
   $translateProvider.translations('en', {
